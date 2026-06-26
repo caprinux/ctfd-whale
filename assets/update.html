@@ -50,6 +50,7 @@
         </label>
         <select class="form-control" name="redirect_type">
             <option value="http" {% if challenge.redirect_type == "http" %}selected{% endif %}>HTTP</option>
+            <option value="https" {% if challenge.redirect_type == "https" %}selected{% endif %}>HTTPS</option>
             <option value="direct" {% if challenge.redirect_type == "direct" %}selected{% endif %}>Direct</option>
         </select>
     </div>

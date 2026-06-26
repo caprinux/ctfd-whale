@@ -230,7 +230,7 @@ $ cp frp/frpc.ini.example frp/frpc.ini
 - 修改 `token` 字段， 此token用于frpc与frps通信的验证
 - 此处因为frps和frpc在同一台服务器中，不改也行
 - 如果你的target服务器处于内网中，可以将 `frps` 放在 `web` 服务器中，这时token就可以长一些，比如[生成一个随机UUID](https://www.uuidgenerator.net/)
-- 注意 `vhost_http_port` 与 [docker-compose.yml](/whale-target/docker-compose.yml) 里 `frps` 映射的端口相同
+- 注意 `vhost_http_port` 和 `vhost_https_port` 与 [docker-compose.yml](/whale-target/docker-compose.yml) 里 `frps` 映射的端口相同
 - `subdomain_host` 是你做泛解析之后的域名，如果泛解析记录为`*.sub.example.com`, 则填入`sub.example.com`
 
 
@@ -254,6 +254,8 @@ $ cp frp/frpc.ini.example frp/frpc.ini
 - `API URL` 需要按照 `http://user:password@ip:port` 的形式来设置
 - `Http Domain Suffix` 需要与 `frps.ini` 中的 `subdomain_host` 保持一致
 - `HTTP Port` 与 `frps.ini` 的 `vhost_http_port` 保持一致
+- `HTTPS Port` 是选手访问用的公网 HTTPS 端口，一般为 `443`
+- `HTTPS Vhost Port` 与 `frps.ini` 的 `vhost_https_port` 保持一致
 - `Direct Minimum Port` 与 `Direct Maximum Port` 与 `whale-target/docker-compose.yml` 中的段口范围保持一致
 - 当 API 设置成功后，whale 会自动获取`frpc.ini`的内容作为模板
 

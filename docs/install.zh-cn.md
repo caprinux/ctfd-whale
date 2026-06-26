@@ -85,6 +85,7 @@ services:
         ports:
             - 10000-10100:10000-10100  # 映射direct类型题目的端口
             - 8001:8001  # 映射http类型题目的端口
+            - 443:8443  # 映射https类型题目的端口
         networks:
             default:  # 需要将frps暴露到公网以正常访问题目容器
             frp_connect:
@@ -112,6 +113,7 @@ mkdir ./conf/frp
 # 下面两个端口注意不要与direct类型题目端口范围重合
 bind_port = 7987  # frpc 连接到 frps 的端口
 vhost_http_port = 8001  # frps 映射http类型题目的端口
+vhost_https_port = 8443  # frps 映射https类型题目的端口
 token = your_token
 subdomain_host = node3.buuoj.cn  # 访问http题目容器的主机名
 ```
@@ -227,6 +229,8 @@ docker network ls -f "label=com.docker.compose.project=ctfd" --format "{{.Name}}
 
 * `HTTP Domain Suffix` 与 frps 的 `subdomain_host` 保持一致
 * `HTTP Port` 与 frps 的 `vhost_http_port` 保持一致
+* `HTTPS Port` 是选手访问用的公网 HTTPS 端口，一般为 `443`
+* `HTTPS Vhost Port` 与 frps 的 `vhost_https_port` 保持一致
 * `Direct IP Address` 为能访问到 frps 相应端口(例子中为10000-10100) 的IP
 * `Direct Minimum Port` 与 `Direct Maximum Port` 显然可得
 * 只要正确填写了 `API URL` ，Whale 会自动获取 frpc 的配置文件作为 `Frpc config template`

@@ -22,7 +22,7 @@ from .utils.control import ControlUtil
 from .utils.db import DBContainer
 from .utils.docker import DockerUtils
 from .utils.exceptions import WhaleWarning
-from .utils.setup import setup_default_configs
+from .utils.setup import ensure_https_defaults, setup_default_configs
 from .utils.routers import Router
 
 
@@ -45,6 +45,8 @@ def load(app):
     ensure_schema(app)
     if not get_config("whale:setup"):
         setup_default_configs()
+    else:
+        ensure_https_defaults()
 
     register_plugin_assets_directory(
         app, base_path=f"/plugins/{plugin_name}/assets",

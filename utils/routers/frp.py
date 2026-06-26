@@ -18,6 +18,7 @@ class FrpRouter(BaseRouter):
     types = {
         'direct': 'tcp',
         'http': 'http',
+        'https': 'https',
     }
 
     class FrpRule:
@@ -53,7 +54,7 @@ class FrpRouter(BaseRouter):
                 'local_port': container.challenge.redirect_port,
                 'use_compression': 'true',
             }
-            if config['type'] == 'http':
+            if config['type'] in ('http', 'https'):
                 config['subdomain'] = container.http_subdomain
             elif config['type'] == 'tcp':
                 config['remote_port'] = container.port
@@ -91,6 +92,11 @@ class FrpRouter(BaseRouter):
             port = get_config("whale:frp_http_port", "80")
             host += f':{port}' if port != '80' else ''
             return f'<a target="_blank" href="http://{container.http_subdomain}.{host}/">Link to the Challenge</a>'
+        elif container.challenge.redirect_type == 'https':
+            host = get_config("whale:frp_http_domain_suffix", "")
+            port = get_config("whale:frp_https_port", "443")
+            host += f':{port}' if port != '443' else ''
+            return f'<a target="_blank" href="https://{container.http_subdomain}.{host}/">Link to the Challenge</a>'
         return ''
 
     def register(self, container: WhaleContainer):
@@ -101,7 +107,7 @@ class FrpRouter(BaseRouter):
                     return False, 'No available ports. Please wait for a few minutes.'
                 container.port = port
                 db.session.commit()
-        elif container.challenge.redirect_type == 'http':
+        elif container.challenge.redirect_type in ('http', 'https'):
             # config['subdomain'] = container.http_subdomain
             pass
         self.reload()

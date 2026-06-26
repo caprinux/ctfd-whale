@@ -1,6 +1,29 @@
-from CTFd.utils import set_config
+from CTFd.utils import get_config, set_config
 
 from ..models import WhaleRedirectTemplate, db
+
+
+def ensure_https_defaults():
+    if get_config('whale:frp_https_port') is None:
+        set_config('whale:frp_https_port', '443')
+    if get_config('whale:frp_https_vhost_port') is None:
+        set_config('whale:frp_https_vhost_port', '8443')
+    if not WhaleRedirectTemplate.query.filter_by(key='https').first():
+        db.session.add(WhaleRedirectTemplate(
+            'https',
+            'https://{{ container.http_subdomain }}.'
+            '{{ get_config("whale:frp_http_domain_suffix", "") }}'
+            '{% if get_config("whale:frp_https_port", "443") != "443" %}:{{ get_config("whale:frp_https_port") }}{% endif %}/',
+            '''
+[https_{{ container.user_id|string }}-{{ container.uuid }}]
+type = https
+local_ip = {{ container.user_id|string }}-{{ container.uuid }}
+local_port = {{ container.challenge.redirect_port }}
+subdomain = {{ container.http_subdomain }}
+use_compression = true
+'''
+        ))
+        db.session.commit()
 
 
 def setup_default_configs():
@@ -25,6 +48,8 @@ def setup_default_configs():
         'rate_limit_seconds': '60',
         'frp_api_url': 'http://frpc:7400',
         'frp_http_port': '8080',
+        'frp_https_port': '443',
+        'frp_https_vhost_port': '8443',
         'frp_http_domain_suffix': '127.0.0.1.nip.io',
         'frp_direct_port_maximum': '10100',
         'frp_direct_port_minimum': '10000',
@@ -39,6 +64,20 @@ def setup_default_configs():
         '''
 [http_{{ container.user_id|string }}-{{ container.uuid }}]
 type = http
+local_ip = {{ container.user_id|string }}-{{ container.uuid }}
+local_port = {{ container.challenge.redirect_port }}
+subdomain = {{ container.http_subdomain }}
+use_compression = true
+'''
+    ))
+    db.session.add(WhaleRedirectTemplate(
+        'https',
+        'https://{{ container.http_subdomain }}.'
+        '{{ get_config("whale:frp_http_domain_suffix", "") }}'
+        '{% if get_config("whale:frp_https_port", "443") != "443" %}:{{ get_config("whale:frp_https_port") }}{% endif %}/',
+        '''
+[https_{{ container.user_id|string }}-{{ container.uuid }}]
+type = https
 local_ip = {{ container.user_id|string }}-{{ container.uuid }}
 local_port = {{ container.challenge.redirect_port }}
 subdomain = {{ container.http_subdomain }}
@@ -65,3 +104,4 @@ use_compression = true
 '''
     ))
     db.session.commit()
+    ensure_https_defaults()

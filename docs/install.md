@@ -82,6 +82,7 @@ services:
         ports:
             - 10000-10100:10000-10100  # for "direct" challenges
             - 8001:8001  # for "http" challenges
+            - 443:8443  # for "https" challenges
         networks:
             default:  # frps ports should be mapped to host
             frp_connect:
@@ -109,6 +110,7 @@ then create a configuration file for frps `./conf/frp/frps.ini`, and fill it wit
 # following ports must not overlap with "direct" port range defined in the compose file
 bind_port = 7987  # port for frpc to connect to
 vhost_http_port = 8001  # port for mapping http challenges
+vhost_https_port = 8443  # port for mapping https challenges
 token = your_token
 subdomain_host = node3.buuoj.cn
 # hostname that's mapped to frps by some reverse proxy (or IS frps itself)
@@ -231,6 +233,8 @@ docker network ls -f "label=com.docker.compose.project=ctfd" --format "{{.Name}}
 
 * `HTTP Domain Suffix` should be consistent with `subdomain_host` in frps
 * `HTTP Port` with `vhost_http_port` in frps
+* `HTTPS Port` is the public player-facing HTTPS port, normally `443`
+* `HTTPS Vhost Port` with `vhost_https_port` in frps
 * `Direct IP Address` should be a hostname/ip address that can be used to access frps
 * `Direct Minimum Port` and `Direct Maximum Port`, you know what to do
 * as long as `API URL` is filled in correctly, Whale will read the config of the connected frpc into `Frpc config template`
