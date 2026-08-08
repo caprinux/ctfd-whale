@@ -82,6 +82,7 @@ function loadInfo() {
             button: "OK"
         });
         if (response.remaining_time != undefined) {
+            const expirationTime = Date.now() + response.remaining_time * 1000;
             $('#whale-challenge-count-down').text(response.remaining_time);
             $('#whale-panel-stopped').hide();
             $('#whale-panel-started').show();
@@ -89,10 +90,8 @@ function loadInfo() {
             $('#whale-challenge-ready-controls').show();
 
             window.t = setInterval(() => {
-                const c = $('#whale-challenge-count-down').text();
-                if (!c) return;
-                let second = parseInt(c) - 1;
-                if (second <= 0) {
+                const second = Math.max(0, Math.ceil((expirationTime - Date.now()) / 1000));
+                if (second === 0) {
                     loadInfo();
                 }
                 $('#whale-challenge-count-down').text(second);
